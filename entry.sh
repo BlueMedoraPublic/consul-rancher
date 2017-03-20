@@ -1,70 +1,77 @@
 #!/bin/mksh
 
-set -ex
+set -vx
+set -o pipefail
 
 # get metadata
 getmd()
 {
-    OUT=''
-    eval curl "${ENDPOINT}${KEY[$1]}" >$OUT
+		OUT=''
+		OUT=$(eval curl "${ENDPOINT}${KEY[$1]}")
 
-    printf '%s' "${OUT//\/}"
+		print "${OUT}" | sed -e 's/[0-9]=//g'
 
 }
 
 create_config()
 {
 
-    export ENDPOINT="http://rancher-metadata/2016-07-29"
+		export ENDPOINT="http://169.254.169.250/2016-07-29"
 
-    KEY=(
-        '/self/container/service_index'
-        '/services/consul-comlink/containers'
-        '/self/container/name'
-        '/self/container/primary_ip'
-        '/services/consul-comlink/metadata/enc.key'
-        '/self/host/agent_ip'
-    )
+		KEY=(
+				"/self/container/service_index"
+				"/self/service/containers"
+				"/self/container/name"
+				"/self/container/primary_ip"
+				"/services/${DC}/metadata/enc.key"
+				"/self/host/agent_ip"
+				"/self/service/scale"
+		)
+
+		SI='' N1='' N2='' AGENT_IP='' CONT_IP='' EK=''
+		SI=${ getmd 0; }
+		AGENT_IP=${ getmd 5; }
+		CONT_IP=${ getmd 3; }
+		EK=${ getmd 4; }
+		CONTS=( ${ getmd 1; } )
+		SCALE=${ getmd 6; }
 
 
-
-    SI='' N1='' N2='' AGENT_IP='' CONT_IP='' EK=''
-    getmd 1 >$SI
-    getmd 5 >$AGENT_IP
-    getmd 3 >$CONT_IP
-    getmd 4 >$EK
-
-	  cat > /opt/rancher/config/server.json <<EOF
+		cat > /opt/rancher/config/server.json <<EOF
 {
 $(
-if [[ $SI == "1" ]]; then
-  print '\t"bootstrap": true,'
-else
-  print '\t"retry_join": [%s,%s],\n"bootstrap": false,' $N1 $N2
-fi
+for x in ${!CONTS[@]}; do
+TMPCONTS+=\"${CONTS[$x]}.${DOMAIN:=rancher.internal}\",
+done
+print \t\"retry_join\" : [ ${TMPCONTS%,} ],
 )
-    "server": true,
-		"datacenter": "comlink",
-		"advertise_addr": "${AGENT_IP}",
-		"bind_addr": "0.0.0.0",
-		"client_addr": "0.0.0.0",
-		"data_dir": "/var/consul",
-		"encrypt": "${EK}",
-		"ca_file": "/opt/rancher/ssl/ca.crt",
-		"cert_file": "/opt/rancher/ssl/consul.crt",
-		"key_file": "/opt/rancher/ssl/consul.key",
-		"verify_incoming": true,
-		"verify_outgoing": true,
-		"log_level": "INFO",
-		"ports" : {
-			"dns" : "${DNS}",
-			"http" : "${HTTPPORT}",
-			"serf_wan": "${SERF_WANPORT}",
-			"serf_lan" : "${SERF_LANPORT}",
-			"server": "${SERVERPORT}"
-		}
+	"bootstrap_expect": ${SCALE:=3},
+	"server": true,
+	"datacenter": "${DC}",
+	"advertise_addr": "${AGENT_IP}",
+	"bind_addr": "0.0.0.0",
+	"client_addr": "0.0.0.0",
+	"data_dir": "/var/consul",
+	"encrypt": "${EK}",
+	"ca_file": "/opt/rancher/ssl/ca.crt",
+	"cert_file": "/opt/rancher/ssl/consul.crt",
+	"key_file": "/opt/rancher/ssl/consul.key",
+	"verify_incoming": true,
+	"verify_outgoing": true,
+	"log_level": "INFO",
+	"ports" : {
+		"dns" : ${DNS:=8600},
+		"http" : ${HTTPPORT:=8500},
+		"serf_wan": ${SERF_WANPORT:=8302},
+		"serf_lan" : ${SERF_LANPORT:=8301},
+		"server": ${SERVERPORT:=8300}
+	},
+	"performance": {
+		"raft_multiplier": 1
+	}
 }
 EOF
+		cat /opt/rancher/config/server.json
 
 }
 
@@ -76,8 +83,10 @@ run_consul()
 main()
 {
 
-    create_config
+		create_config
 
-    sleep 10
-    run_consul
+		sleep 10
+		run_consul
 }
+
+main
