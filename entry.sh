@@ -43,7 +43,7 @@ $(
 for x in ${!CONTS[@]}; do
 TMPCONTS+=\"${CONTS[$x]}.${DOMAIN:=rancher.internal}\",
 done
-print \t\"retry_join\" : [ ${TMPCONTS%,} ],
+print '\t'\"retry_join\" : [ ${TMPCONTS%,} ],
 )
 	"bootstrap_expect": ${SCALE:=3},
 	"server": true,
