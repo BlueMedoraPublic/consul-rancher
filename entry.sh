@@ -18,15 +18,8 @@ create_config()
 
 		export ENDPOINT="http://169.254.169.250/2016-07-29"
 
-		eval typeset -a KEY=(
-				"/self/container/service_index"
-				"/self/service/containers"
-				"/self/container/name"
-				"/self/container/primary_ip"
-				"/services/${DC}/metadata/enc.key"
-				"/self/host/agent_ip"
-				"/self/service/scale"
-		)
+		eval set -A KEY -- "/self/container/service_index" "/self/service/containers" "/self/container/name" "/self/container/primary_ip" "/services/${DC}/metadata/enc.key" "/self/host/agent_ip" "/self/service/scale"
+
 
 		SI='' N1='' N2='' AGENT_IP='' CONT_IP='' EK=''
 		SI=${ getmd 0; }
