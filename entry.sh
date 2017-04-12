@@ -72,21 +72,21 @@ getssl()
     if [[ ! -e /opt/rancher/ssl/ca.crt ]]; then
         print "No CA cert found..."
         ls -al /opt/rancher/ssl
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt" | tee /opt/rancher/ssl/ca.crt
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt" > /opt/rancher/ssl/ca.crt
     else
         print "Found CA cert..."
         cat /opt/rancher/ssl/ca.crt
     fi
 
     if [[ ! -e /opt/rancher/ssl/consul.crt ]]; then
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.crt" | tee /opr/rancher/ssl/consul.crt
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.crt" > /opr/rancher/ssl/consul.crt
     else
         print "Found consul.crt..."
         cat /opt/rancher/ssl/consul.crt
     fi
 
     if [[ ! -e /opt/rancher/ssl/consul.key ]]; then
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.key" | tee /opr/rancher/ssl/consul.key
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.key" > /opr/rancher/ssl/consul.key
     else
         print "Found consul.key..."
         cat /opt/rancher/ssl/consul.key
