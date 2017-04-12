@@ -18,7 +18,7 @@ create_config()
 
 		export ENDPOINT="http://169.254.169.250/2016-07-29"
 
-		eval KEY=(
+		eval typeset -a KEY=(
 				"/self/container/service_index"
 				"/self/service/containers"
 				"/self/container/name"
