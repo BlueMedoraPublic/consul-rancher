@@ -73,13 +73,23 @@ getssl()
         print "No CA cert found..."
         ls -al /opt/rancher/ssl
         eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt" | tee /opt/rancher/ssl/ca.crt
-    elif [[ ! -e /opt/rancher/ssl/consul.crt ]]; then
+    else
+        print "Found CA cert..."
+        cat /opt/rancher/ssl/ca.crt
+    fi
+
+    if [[ ! -e /opt/rancher/ssl/consul.crt ]]; then
         eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.crt" | tee /opr/rancher/ssl/consul.crt
-    elif [[ ! -e /opt/rancher/ssl/consul.key ]]; then
+    else
+        print "Found consul.crt..."
+        cat /opt/rancher/ssl/consul.crt
+    fi
+
+    if [[ ! -e /opt/rancher/ssl/consul.key ]]; then
         eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.key" | tee /opr/rancher/ssl/consul.key
     else
-        print "Found SSL files..."
-        cat /opt/rancher/ssl/*
+        print "Found consul.key..."
+        cat /opt/rancher/ssl/consul.key
     fi
 
 }
