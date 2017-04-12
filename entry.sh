@@ -18,12 +18,12 @@ create_config()
 
 		export ENDPOINT="http://169.254.169.250/2016-07-29"
 
-		KEY=(
+		eval KEY=(
 				"/self/container/service_index"
 				"/self/service/containers"
 				"/self/container/name"
 				"/self/container/primary_ip"
-				"/services/comlink/metadata/enc.key"
+				"/services/${DC}/metadata/enc.key"
 				"/self/host/agent_ip"
 				"/self/service/scale"
 		)
@@ -75,6 +75,16 @@ EOF
 
 }
 
+check_ca()
+{
+    if [[ ! -e /opt/rancher/ssl/ca.crt ]]; then
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt > /opt/rancher/ssl/ca.crt"
+    else
+        cat /opt/rancher/ssl/ca.crt
+    fi
+
+}
+
 run_consul()
 {
 		exec consul agent -server -ui -config-file=/opt/rancher/config/server.json -data-dir=/var/consul
@@ -85,7 +95,8 @@ main()
 
 		create_config
 
-		sleep 10
+		sleep 90
+    check_ca
 		run_consul
 }
 
