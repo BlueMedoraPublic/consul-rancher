@@ -23,7 +23,7 @@ create_config()
 				"/self/service/containers"
 				"/self/container/name"
 				"/self/container/primary_ip"
-				"/services/${DC}/metadata/enc.key"
+				"/services/consul/metadata/enc.key"
 				"/self/host/agent_ip"
 				"/self/service/scale"
 		)
@@ -41,7 +41,7 @@ create_config()
 {
 $(
 for x in ${!CONTS[@]}; do
-TMPCONTS+=\"${CONTS[$x]}.${DOMAIN:=rancher.internal}\",
+TMPCONTS+=\"${CONTS[$x]}\",
 done
 print '\t'\"retry_join\" : [ ${TMPCONTS%,} ],
 )
