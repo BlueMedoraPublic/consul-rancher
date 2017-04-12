@@ -20,7 +20,6 @@ create_config()
 
 		eval set -A KEY -- "/self/container/service_index" "/self/service/containers" "/self/container/name" "/self/container/primary_ip" "/services/${DC}/metadata/enc.key" "/self/host/agent_ip" "/self/service/scale"
 
-
 		SI='' N1='' N2='' AGENT_IP='' CONT_IP='' EK=''
 		SI=${ getmd 0; }
 		AGENT_IP=${ getmd 5; }
@@ -71,7 +70,9 @@ EOF
 check_ca()
 {
     if [[ ! -e /opt/rancher/ssl/ca.crt ]]; then
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt > /opt/rancher/ssl/ca.crt"
+        print "No CA cert found"
+        ls -al /opt/rancher/ssl
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt" > /opt/rancher/ssl/ca.crt
     else
         cat /opt/rancher/ssl/ca.crt
     fi
@@ -87,10 +88,10 @@ main()
 {
 
 		create_config
+    check_ca
 
 		sleep 90
-    check_ca
-		run_consul
+    run_consul
 }
 
 main
