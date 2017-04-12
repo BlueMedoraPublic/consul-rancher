@@ -21,7 +21,7 @@ create_config()
 		eval set -A KEY -- "/self/container/service_index" "/self/service/containers" "/self/container/name" "/self/container/primary_ip" "/services/${DC}/metadata/enc.key" "/self/host/agent_ip" "/self/service/scale"
 
 		SI='' N1='' N2='' AGENT_IP='' CONT_IP='' EK=''
-		SI=${ getmd 0; }
+		export SI=${ getmd 0; }
 		AGENT_IP=${ getmd 5; }
 		CONT_IP=${ getmd 3; }
 		EK=${ getmd 4; }
@@ -67,14 +67,19 @@ EOF
 
 }
 
-check_ca()
+getssl()
 {
     if [[ ! -e /opt/rancher/ssl/ca.crt ]]; then
-        print "No CA cert found"
+        print "No CA cert found..."
         ls -al /opt/rancher/ssl
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt" > /opt/rancher/ssl/ca.crt
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/ca.crt" | tee /opt/rancher/ssl/ca.crt
+    elif [[ ! -e /opt/rancher/ssl/consul.crt ]]; then
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.crt" | tee /opr/rancher/ssl/consul.crt
+    elif [[ ! -e /opt/rancher/ssl/consul.key ]]; then
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.key" | tee /opr/rancher/ssl/consul.key
     else
-        cat /opt/rancher/ssl/ca.crt
+        print "Found SSL files..."
+        cat /opt/rancher/ssl/*
     fi
 
 }
@@ -88,7 +93,7 @@ main()
 {
 
 		create_config
-    check_ca
+    getssl
 
 		sleep 90
     run_consul
