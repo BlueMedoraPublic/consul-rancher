@@ -23,7 +23,7 @@ create_config()
 				"/self/service/containers"
 				"/self/container/name"
 				"/self/container/primary_ip"
-				"/services/consul/metadata/enc.key"
+				"/services/comlink/metadata/enc.key"
 				"/self/host/agent_ip"
 				"/self/service/scale"
 		)
