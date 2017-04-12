@@ -21,7 +21,7 @@ create_config()
 		eval set -A KEY -- "/self/container/service_index" "/self/service/containers" "/self/container/name" "/self/container/primary_ip" "/services/${DC}/metadata/enc.key" "/self/host/agent_ip" "/self/service/scale"
 
 		SI='' N1='' N2='' AGENT_IP='' CONT_IP='' EK=''
-		export SI=${ getmd 0; }
+		SI=${ getmd 0; }
 		AGENT_IP=${ getmd 5; }
 		CONT_IP=${ getmd 3; }
 		EK=${ getmd 4; }
@@ -79,14 +79,14 @@ getssl()
     fi
 
     if [[ ! -e /opt/rancher/ssl/consul.crt ]]; then
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.crt" > /opr/rancher/ssl/consul.crt
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.crt" > /opt/rancher/ssl/consul.crt
     else
         print "Found consul.crt..."
         cat /opt/rancher/ssl/consul.crt
     fi
 
     if [[ ! -e /opt/rancher/ssl/consul.key ]]; then
-        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.key" > /opr/rancher/ssl/consul.key
+        eval curl "-Ls http://169.254.169.250/2016-07-29/services/${DC}/metadata/consul${SI}.key" > /opt/rancher/ssl/consul.key
     else
         print "Found consul.key..."
         cat /opt/rancher/ssl/consul.key
